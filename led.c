@@ -8,10 +8,13 @@
 #define COLOR_ORDER GRB
 CRGB leds[NUM_LEDS];
 
+
+int buttonState = 0; 
+
 void setup() {
   FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
   FastLED.setBrightness(BRIGHTNESS);
-  pinMode(buttonPin, INPUT);
+  pinMode(BUTTON_PIN, INPUT);
 
 }
 
@@ -99,6 +102,6 @@ void lightshow() {
 void loop() {
   buttonState = digitalRead(BUTTON_PIN);
   if (buttonState == HIGH) {
-    lightshow()
+    lightshow();
   }
 }
