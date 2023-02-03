@@ -1,6 +1,7 @@
 #include "FastLED.h"
 
 #define LED_PIN 2
+#define BUTTON_PIN 3
 #define NUM_LEDS 30
 #define BRIGHTNESS 255
 #define LED_TYPE WS2811
@@ -10,9 +11,11 @@ CRGB leds[NUM_LEDS];
 void setup() {
   FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
   FastLED.setBrightness(BRIGHTNESS);
+  pinMode(buttonPin, INPUT);
+
 }
 
-void loop() {
+void lightshow() {
   // Pulse Red
   for(int i = 0; i < 4; i++) {
     for(int j = 0; j <= NUM_LEDS; j++) {
@@ -87,4 +90,15 @@ void loop() {
   }
   FastLED.show();
   delay(15000);
+   for(int j = 0; j <= NUM_LEDS; j++) {
+      leds[j] = CRGB::Black;
+    }
+    FastLED.show();
+}
+
+void loop() {
+  buttonState = digitalRead(BUTTON_PIN);
+  if (buttonState == HIGH) {
+    lightshow()
+  }
 }
