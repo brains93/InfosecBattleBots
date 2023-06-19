@@ -30,7 +30,6 @@ void lightshow() {
       leds[j] = CRGB::Black;
     }
     FastLED.show();
-    delay(500);
     delay(1000);
   }
 
