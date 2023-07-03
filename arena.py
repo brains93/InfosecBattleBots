@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
 import time
+from stepper import Stepper
 
 # Button mappings
 button_mappings = {
@@ -51,7 +52,7 @@ Start_millis = 0
 STEPS_PER_REV = 32
 GEAR_RED = 64
 STEPS_PER_OUT_REV = STEPS_PER_REV * GEAR_RED
-Pit_Stepper = None
+Pit_Stepper = Stepper(STEPS_PER_REV, 8, 10, 9, 11)
 
 def setup():
     # Inputs
