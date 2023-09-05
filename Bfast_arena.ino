@@ -1,4 +1,5 @@
 #include <Stepper.h>
+#include <FastLED.h>
 
 // Control pins
 const int Button_Start = 53;
@@ -17,13 +18,25 @@ const int GEAR_RED = 64;
 const int StepsRequired = 2048;
 Stepper Pit_Stepper(STEPS_PER_REV, 8, 10, 9, 11);
 
+// LED Setup
+#define NUM_LEDS 30       // Number of LEDs in your LED strip
+#define DATA_PIN 6        // Define the data pin for your LED strip
+CRGB leds[NUM_LEDS];  
+
 // Variables
 bool Active = false;
 bool Weapons_Enabled = false;
 bool Flipper_Fire = false;
 unsigned long StartMillis = 0;
 
+// FastLED variables
+bool ledAnimationActive = false;
+unsigned long animationStartTime = 0;
+
+
 void setup() {
+
+  FastLED.addLeds<WS2812B, DATA_PIN, RGB>(leds, NUM_LEDS);
   pinMode(Button_Start, INPUT_PULLUP);
   pinMode(Button_Stop, INPUT_PULLUP);
   pinMode(Button_Pit_Up, INPUT_PULLUP);
@@ -39,6 +52,8 @@ void loop() {
     Active = true;
     StartMillis = millis();
     Weapons_Enabled = false; // Reset weapons flag
+    ledAnimationActive = true;
+    animationStartTime = millis();
   }
 
   if (Active) {
@@ -55,12 +70,14 @@ void loop() {
       // Stop the timer
       Active = false;
       Weapons_Enabled = false;
+      ledAnimationActive = false;
     }
   }
 
   if (digitalRead(Button_Stop) == LOW) {
     Active = false; // Stop the timer
     Weapons_Enabled = false;
+    ledAnimationActive = false; // Turn off LED animation
   }
 
   if (digitalRead(Button_Pit_Up) == LOW && Weapons_Enabled) {
@@ -68,6 +85,15 @@ void loop() {
     Pit_Stepper.setSpeed(1);
     Pit_Stepper.step(-StepsRequired);
   }
+    // Update LEDs
+  if (ledAnimationActive) {
+    updateLEDs();
+  } else {
+    // Turn all LEDs red when the timer is not active
+    fill_solid(leds, NUM_LEDS, CRGB::Red);
+    FastLED.show();
+  }
+
 
   // Your Flipper function goes here
   Flipper();
@@ -80,4 +106,26 @@ void Flipper() {
     delay(50);
     digitalWrite(FLipper_Out, LOW);
   }
+}
+
+void updateLEDs() {
+  unsigned long currentTime = millis();
+  unsigned long animationDuration = currentTime - animationStartTime;
+
+  if (animationDuration < 3000) {
+    // Flash red once per second for 3 seconds
+    if (animationDuration % 1000 < 500) {
+      fill_solid(leds, NUM_LEDS, CRGB::Red);
+    } else {
+      fill_solid(leds, NUM_LEDS, CRGB::Black);
+    }
+  } else if (animationDuration < 5000) {
+    // Display green for 2 seconds
+    fill_solid(leds, NUM_LEDS, CRGB::Green);
+  } else {
+    // Display white while the timer is on
+    fill_solid(leds, NUM_LEDS, CRGB::White);
+  }
+
+  FastLED.show();
 }
